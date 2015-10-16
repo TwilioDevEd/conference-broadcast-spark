@@ -1,9 +1,11 @@
 package com.twilio.conferencebroadcast;
 
+import com.twilio.conferencebroadcast.controllers.HomeController;
 import com.twilio.conferencebroadcast.lib.AppSetup;
 import spark.Spark;
+import spark.template.mustache.MustacheTemplateEngine;
 
-import static spark.Spark.port;
+import static spark.Spark.*;
 
 /**
  * Main application class. The environment is set up here, and all necessary services are run.
@@ -29,5 +31,7 @@ public class App {
      * application is running. Place static web files in this directory (JS, CSS).
      */
     Spark.staticFileLocation("/public");
+
+    get("/", new HomeController().index, new MustacheTemplateEngine());
   }
 }
