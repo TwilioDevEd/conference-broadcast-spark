@@ -1,7 +1,9 @@
 package com.twilio.conferencebroadcast;
 
+import com.twilio.conferencebroadcast.controllers.BroadcastController;
 import com.twilio.conferencebroadcast.controllers.ConferenceController;
 import com.twilio.conferencebroadcast.controllers.HomeController;
+import com.twilio.conferencebroadcast.controllers.RecordingController;
 import com.twilio.conferencebroadcast.lib.AppSetup;
 import spark.Spark;
 import spark.template.mustache.MustacheTemplateEngine;
@@ -34,10 +36,16 @@ public class App {
     Spark.staticFileLocation("/public");
 
     ConferenceController conferenceController = new ConferenceController();
+    BroadcastController broadcastController = new BroadcastController();
+    RecordingController recordingController = new RecordingController();
 
     get("/", new HomeController().index, new MustacheTemplateEngine());
+
     get("/conference", conferenceController.index, new MustacheTemplateEngine());
     post("/conference", conferenceController.join);
     post("conference/connect", conferenceController.connect);
+
+    get("/broadcast", broadcastController.index, new MustacheTemplateEngine());
+    get("/recording/index", recordingController.index);
   }
 }

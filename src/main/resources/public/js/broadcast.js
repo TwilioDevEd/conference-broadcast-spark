@@ -6,7 +6,7 @@ $(function() {
 
   getRecordings = function(callback) {
     return $.ajax({
-      url: "/fetch_recordings",
+      url: "/recording/index",
       dataType: "json",
       error: function(jqXHR, textStatus, errorThrown) {
         return $('.recording-status').text(textStatus);
@@ -57,7 +57,7 @@ $(function() {
     var phoneNumber;
     e.preventDefault();
     phoneNumber = $('#recordingNumber').val();
-    return $.post("/call_recording", {
+    return $.post("/recording/create", {
       phone_number: phoneNumber
     }).done(function(data) {
       $('.recording-status').text('Status: Recording in Progress');
