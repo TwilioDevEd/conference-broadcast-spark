@@ -59,4 +59,13 @@ public class AppSetup {
       return sid;
     }
   }
+
+  public String getConferenceNumber() throws UndefinedEnvironmentVariableException {
+    String number = env.get("TWILIO_RR_PHONE_NUMBER");
+    if (number == null) {
+      throw new UndefinedEnvironmentVariableException("TWILIO_RR_PHONE_NUMBER is not set");
+    } else {
+      return number;
+    }
+  }
 }

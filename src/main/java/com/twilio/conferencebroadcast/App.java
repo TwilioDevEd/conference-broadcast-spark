@@ -1,5 +1,6 @@
 package com.twilio.conferencebroadcast;
 
+import com.twilio.conferencebroadcast.controllers.ConferenceController;
 import com.twilio.conferencebroadcast.controllers.HomeController;
 import com.twilio.conferencebroadcast.lib.AppSetup;
 import spark.Spark;
@@ -32,6 +33,11 @@ public class App {
      */
     Spark.staticFileLocation("/public");
 
+    ConferenceController conferenceController = new ConferenceController();
+
     get("/", new HomeController().index, new MustacheTemplateEngine());
+    get("/conference", conferenceController.index, new MustacheTemplateEngine());
+    post("/conference", conferenceController.join);
+    post("conference/connect", conferenceController.connect);
   }
 }
