@@ -29,8 +29,8 @@ An example application implementing an disaster response kit that allows an orga
    so the application's users can take surveys. You can buy a number [right
    here](https://www.twilio.com/user/account/phone-numbers/search). Once you have
    a number you need to configure your number to work with your application. Open
-   [the number management page](https://www.twilio.com/user/account/phone-
-   numbers/incoming) and open a number's configuration by clicking on it.
+   [the number management page](https://www.twilio.com/user/account/phone-numbers/incoming)
+   and open a number's configuration by clicking on it.
    
    Remember that the number where you change the voice webhooks must be the same one you set on
    the `TWILIO_RR_PHONE_NUMBER` environment variable.
