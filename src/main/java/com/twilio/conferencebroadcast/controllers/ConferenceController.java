@@ -1,6 +1,5 @@
 package com.twilio.conferencebroadcast.controllers;
 
-import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
 import com.twilio.conferencebroadcast.lib.AppSetup;
 import com.twilio.sdk.verbs.*;
 import spark.ModelAndView;

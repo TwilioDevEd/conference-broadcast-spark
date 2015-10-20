@@ -46,6 +46,10 @@ public class App {
     post("conference/connect", conferenceController.connect);
 
     get("/broadcast", broadcastController.index, new MustacheTemplateEngine());
+    post("/broadcast/record", broadcastController.record);
+    post("broadcast/hangup", broadcastController.hangup);
+
     get("/recording/index", recordingController.index);
+    post("/recording/create", recordingController.create);
   }
 }

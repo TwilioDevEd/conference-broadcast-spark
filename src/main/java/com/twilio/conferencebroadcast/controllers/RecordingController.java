@@ -11,15 +11,12 @@ import org.json.simple.JSONObject;
 import spark.Route;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RecordingController {
   AppSetup appSetup;
   TwilioRestClient client;
-  public Route index = (request, response) -> {
-    response.type("application/json");
-
-    return getRecordingsAsJSON();
-  };
 
   public RecordingController() {
     this.appSetup = new AppSetup();
@@ -35,10 +32,31 @@ public class RecordingController {
     this.client = client;
   }
 
+  public Route index = (request, response) -> {
+    response.type("application/json");
+
+    return getRecordingsAsJSON();
+  };
+
+  public Route create = (request, response) -> {
+    Map params = new HashMap<>();
+    String phoneNumber = request.queryParams("phone_number");
+    String twilioNumber = appSetup.getTwilioPhoneNumber();
+    String path = request.url().replace(request.uri(), "") + "/broadcast/record";
+
+    params.put("From", twilioNumber);
+    params.put("To", phoneNumber);
+    params.put("Url", path);
+
+    client.getAccount().getCallFactory().create(params);
+
+    return "";
+  };
+
   public String getRecordingsAsJSON() {
     RecordingList recordings = client.getAccount().getRecordings();
     JSONArray jsonRecordings = new JSONArray();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd HH:mm:ss");
 
     for (Recording recording : recordings) {
       JSONObject obj = new JSONObject();

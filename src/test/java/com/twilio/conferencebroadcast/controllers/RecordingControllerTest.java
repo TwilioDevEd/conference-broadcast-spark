@@ -31,8 +31,8 @@ public class RecordingControllerTest {
     Recording mockRecording2 = mock(Recording.class);
     Iterator recordingIterator = mock(Iterator.class);
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
-    String strDate = "2013-12-21";
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd HH:mm:ss");
+    String strDate = "2013-12-21 14:12:21";
     Date newDate = null;
     try {
       newDate = dateFormat.parse(strDate);
