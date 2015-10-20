@@ -6,6 +6,13 @@
 {{/header}}
 {{/header}}
 {{$content}}
+{{#message}}
+    <div class="alert alert-success alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+        {{notice}}
+    </div>
+{{/message}}
 <h1>Broadcast a message</h1>
 <form action="/broadcast/send" method="POST" class="form-horizontal">
     <h3>1. Select a Recording</h3>

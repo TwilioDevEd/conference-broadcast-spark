@@ -29,7 +29,7 @@ public class ConferenceController {
   };
 
   public TemplateViewRoute index = (request, response) -> {
-    Map map = new HashMap();
+    Map<String, String> map = new HashMap();
     String number = appSetup.getConferenceNumber();
     map.put("conference_number", number);
 

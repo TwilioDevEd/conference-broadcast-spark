@@ -43,11 +43,13 @@ public class App {
 
     get("/conference", conferenceController.index, new MustacheTemplateEngine());
     post("/conference", conferenceController.join);
-    post("conference/connect", conferenceController.connect);
+    post("/conference/connect", conferenceController.connect);
 
     get("/broadcast", broadcastController.index, new MustacheTemplateEngine());
     post("/broadcast/record", broadcastController.record);
-    post("broadcast/hangup", broadcastController.hangup);
+    post("/broadcast/hangup", broadcastController.hangup);
+    post("/broadcast/send", broadcastController.send, new MustacheTemplateEngine());
+    post("/broadcast/play", broadcastController.play);
 
     get("/recording/index", recordingController.index);
     post("/recording/create", recordingController.create);

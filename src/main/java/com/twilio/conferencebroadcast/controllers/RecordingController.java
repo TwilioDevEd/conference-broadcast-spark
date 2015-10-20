@@ -47,7 +47,7 @@ public class RecordingController {
   };
 
   public int createRecording(Request request) {
-    Map params = new HashMap<>();
+    Map<String, String> params = new HashMap<>();
     String phoneNumber = request.queryParams("phone_number");
     String twilioNumber = null;
     try {

@@ -9,7 +9,7 @@ import java.util.Map;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class HomeController {
   public TemplateViewRoute index = (request, response) -> {
-    Map map = new HashMap();
+    Map<String, String> map = new HashMap();
 
     return new ModelAndView(map, "home.mustache");
   };

@@ -84,7 +84,7 @@ $(function() {
   });
 
   return $(document).ready(function() {
-    if (window.location.pathname === '/broadcast') {
+    if (window.location.pathname === '/broadcast' || window.location.pathname === '/broadcast/send') {
       getRecordings(updateAudio);
     }
   });

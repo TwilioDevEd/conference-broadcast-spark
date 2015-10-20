@@ -1,8 +1,13 @@
 package com.twilio.conferencebroadcast.controllers;
 
+import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
 import com.twilio.conferencebroadcast.lib.AppSetup;
+import com.twilio.sdk.TwilioRestClient;
+import com.twilio.sdk.TwilioRestException;
+import com.twilio.sdk.resource.factory.CallFactory;
 import com.twilio.sdk.verbs.*;
 import spark.ModelAndView;
+import spark.Request;
 import spark.Route;
 import spark.TemplateViewRoute;
 
@@ -11,18 +16,24 @@ import java.util.Map;
 
 public class BroadcastController {
   AppSetup appSetup;
+  TwilioRestClient client;
 
   public BroadcastController() {
     this.appSetup = new AppSetup();
+    try {
+      this.client = new TwilioRestClient(appSetup.getAccountSid(), appSetup.getAuthToken());
+    } catch (UndefinedEnvironmentVariableException e) {
+      System.out.println("Required environment variable undefined");
+    }
   }
 
-  public BroadcastController(AppSetup appSetup) {
+  public BroadcastController(AppSetup appSetup, TwilioRestClient client) {
     this.appSetup = appSetup;
+    this.client = client;
   }
 
   public TemplateViewRoute index = (request, response) -> {
-    Map map = new HashMap();
-    String number = appSetup.getConferenceNumber();
+    Map<String, String> map = new HashMap();
 
     return new ModelAndView(map, "broadcast.mustache");
   };
@@ -38,6 +49,65 @@ public class BroadcastController {
 
     return getXMLHangupResponse();
   };
+
+  public TemplateViewRoute send = (request, response) -> {
+    Map<String, String> map = new HashMap();
+    broadcastSend(request);
+
+    map.put("message", "true");
+    map.put("notice", "Broadcast was successfully sent");
+
+    return new ModelAndView(map, "broadcast.mustache");
+  };
+
+  public Route play = (request, response) -> {
+    return getXMLPlayResponse(request);
+  };
+
+  public String getXMLPlayResponse(Request request) {
+    TwiMLResponse twiMLResponse = new TwiMLResponse();
+    String recordingUrl = request.queryParams("recording_url");
+
+    Play play = new Play(recordingUrl);
+    // Hangup hangup = new Hangup();
+
+    try {
+      twiMLResponse.append(play);
+      // twiMLResponse.append(hangup);
+    } catch (TwiMLException e) {
+      System.out.println("Unable to create twiml response");
+    }
+
+    return twiMLResponse.toEscapedXML();
+  }
+
+  public void broadcastSend(Request request) {
+    String numbers = request.queryParams("numbers");
+    String recordingUrl = request.queryParams("recording_url");
+    String[] parsedNumbers = numbers.split(",");
+    String url = request.url().replace(request.uri(), "") + "/broadcast/play?recording_url=" + recordingUrl;
+    String twilioNumber = null;
+    try {
+      twilioNumber = appSetup.getTwilioPhoneNumber();
+    } catch (UndefinedEnvironmentVariableException e) {
+      e.printStackTrace();
+    }
+
+    CallFactory callFactory = client.getAccount().getCallFactory();
+
+    for (String number : parsedNumbers) {
+      Map<String, String> params = new HashMap<>();
+      params.put("From", twilioNumber);
+      params.put("To", number);
+      params.put("Url", url);
+
+      try {
+        callFactory.create(params);
+      } catch (TwilioRestException e) {
+        System.out.println("Twilio rest client error");
+      }
+    }
+  }
 
   public String getXMLHangupResponse() {
     TwiMLResponse twiMLResponse = new TwiMLResponse();
