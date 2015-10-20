@@ -46,6 +46,11 @@ public class RecordingController {
     return "";
   };
 
+  /**
+   * Function that creates a recording remotely using Twilio's rest client
+   * @param request Request holds the phone_number parameter
+   * @return Returns the status of the request
+   */
   public int createRecording(Request request) {
     Map<String, String> params = new HashMap<>();
     String phoneNumber = request.queryParams("phone_number");
@@ -70,6 +75,10 @@ public class RecordingController {
     return 200;
   }
 
+  /**
+   * Creates a JSON string that contains the url and date of all the user's recordings
+   * @return Returns a JSON string
+   */
   public String getRecordingsAsJSON() {
     RecordingList recordings = client.getAccount().getRecordings();
     JSONArray jsonRecordings = new JSONArray();

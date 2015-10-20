@@ -42,6 +42,10 @@ public class ConferenceController {
     return getXMLConnectResponse(request);
   };
 
+  /**
+   * Generates the xml necessary to ask the user what role will be used to join the call
+   * @return XML response
+   */
   public String getXMLJoinResponse() {
     TwiMLResponse twimlResponse = new TwiMLResponse();
 
@@ -68,6 +72,11 @@ public class ConferenceController {
     return twimlResponse.toXML();
   }
 
+  /**
+   * Returns necessary xml to join the conference call
+   * @param request
+   * @return XML string
+   */
   public String getXMLConnectResponse(Request request) {
     Boolean muted = false;
     Boolean moderator = false;

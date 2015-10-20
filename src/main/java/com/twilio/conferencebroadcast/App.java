@@ -39,18 +39,30 @@ public class App {
     BroadcastController broadcastController = new BroadcastController();
     RecordingController recordingController = new RecordingController();
 
+    /**
+     * Home route
+     */
     get("/", new HomeController().index, new MustacheTemplateEngine());
 
+    /**
+     * Defines routes for everything related to conference calls
+     */
     get("/conference", conferenceController.index, new MustacheTemplateEngine());
     post("/conference", conferenceController.join);
     post("/conference/connect", conferenceController.connect);
 
+    /**
+     * Defines routes for everything related to broadcast calls
+     */
     get("/broadcast", broadcastController.index, new MustacheTemplateEngine());
     post("/broadcast/record", broadcastController.record);
     post("/broadcast/hangup", broadcastController.hangup);
     post("/broadcast/send", broadcastController.send, new MustacheTemplateEngine());
     post("/broadcast/play", broadcastController.play);
 
+    /**
+     * Defines routes for everything related to recordings
+     */
     get("/recording/index", recordingController.index);
     post("/recording/create", recordingController.create);
   }

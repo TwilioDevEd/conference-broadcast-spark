@@ -64,16 +64,19 @@ public class BroadcastController {
     return getXMLPlayResponse(request);
   };
 
+  /**
+   * Returns the xml response that will play the recorded message for the given URL
+   * @param request
+   * @return xml response
+   */
   public String getXMLPlayResponse(Request request) {
     TwiMLResponse twiMLResponse = new TwiMLResponse();
     String recordingUrl = request.queryParams("recording_url");
 
     Play play = new Play(recordingUrl);
-    // Hangup hangup = new Hangup();
 
     try {
       twiMLResponse.append(play);
-      // twiMLResponse.append(hangup);
     } catch (TwiMLException e) {
       System.out.println("Unable to create twiml response");
     }
@@ -81,6 +84,11 @@ public class BroadcastController {
     return twiMLResponse.toEscapedXML();
   }
 
+  /**
+   * Method that will create the remote calls using Twilio's rest client for every number
+   * especified in the CSV.
+   * @param request
+   */
   public void broadcastSend(Request request) {
     String numbers = request.queryParams("numbers");
     String recordingUrl = request.queryParams("recording_url");
@@ -109,6 +117,10 @@ public class BroadcastController {
     }
   }
 
+  /**
+   * This XML response is necessary to end the call when a new recording is made
+   * @return
+   */
   public String getXMLHangupResponse() {
     TwiMLResponse twiMLResponse = new TwiMLResponse();
 
