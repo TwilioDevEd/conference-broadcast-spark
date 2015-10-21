@@ -5,4 +5,4 @@ env:
   global:
   - TWILIO_AUTH_TOKEN=token_here
   - TWILIO_ACCOUNT_SID=sid_here
-  - TWILIO_NUMBER=number_here
+  - TWILIO_NUMBER=twilio_number_here
