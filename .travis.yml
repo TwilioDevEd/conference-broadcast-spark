@@ -6,4 +6,3 @@ env:
   - TWILIO_AUTH_TOKEN=token_here
   - TWILIO_ACCOUNT_SID=sid_here
   - TWILIO_PHONE_NUMBER=number_here
-  - TWILIO_APPLICATION_SID=app_sid_here
