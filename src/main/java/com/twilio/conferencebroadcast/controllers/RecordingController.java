@@ -69,7 +69,8 @@ public class RecordingController {
     try {
       client.getAccount().getCallFactory().create(params);
     } catch (TwilioRestException e) {
-      System.out.println("Twilio rest client error");
+      System.out.println("Twilio rest client error " + e.getErrorMessage());
+      System.out.println("Remember not to use localhost to access this app, use your ngrok URL");
       return e.getErrorCode();
     }
     return 200;
