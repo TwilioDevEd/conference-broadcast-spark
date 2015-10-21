@@ -6,7 +6,7 @@ An example application implementing an disaster response kit that allows an orga
 ### Run the application
 
 1. Clone the repository and `cd` into it.
-1. The application uses Gradle to manage dependencies. A wrapper is included in the 
+1. The application uses Gradle to manage dependencies. A wrapper is included in the
    repository so, if you don't have Gradle installed on the system, you can use `./gradlew` to
    execute any gradle task.
 1. Copy the sample configuration file and edit it to match your configuration.
@@ -19,22 +19,22 @@ An example application implementing an disaster response kit that allows an orga
    your
    [Twilio Account Settings](https://www.twilio.com/user/account/settings).
    You can buy Twilio phone numbers at [Twilio numbers](https://www.twilio.com/user/account/phone-numbers/search)
-   `TWILIO_PHONE_NUMBER` should be set to the phone number you purchased above.
-   `TWILIO_RR_PHONE_NUMBER` should be set to a Twilio number too.
+   `TWILIO_NUMBER` should be set to the phone number you purchased above.
+   `TWILIO_RR_NUMBER` should be set to a Twilio number too.
 
 1. Configure Twilio to call your webhooks
    You will also need to configure Twilio to call your application when calls are received.
-   
+
    You will need to provision at least one Twilio number with voice capabilities
    so the application's users can take surveys. You can buy a number [right
    here](https://www.twilio.com/user/account/phone-numbers/search). Once you have
    a number you need to configure your number to work with your application. Open
    [the number management page](https://www.twilio.com/user/account/phone-numbers/incoming)
    and open a number's configuration by clicking on it.
-   
+
    Remember that the number where you change the voice webhooks must be the same one you set on
-   the `TWILIO_RR_PHONE_NUMBER` environment variable.
-   
+   the `TWILIO_RR_NUMBER` environment variable.
+
    ![Configure Voice](http://howtodocs.s3.amazonaws.com/twilio-number-config-all-med.gif)
 
 1. Run the application using Gradle.

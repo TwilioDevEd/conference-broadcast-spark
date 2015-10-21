@@ -43,9 +43,9 @@ public class AppSetup {
   }
 
   public String getTwilioPhoneNumber() throws UndefinedEnvironmentVariableException {
-    String phoneNumber = env.get("TWILIO_PHONE_NUMBER");
+    String phoneNumber = env.get("TWILIO_NUMBER");
     if (phoneNumber == null) {
-      throw new UndefinedEnvironmentVariableException("TWILIO_PHONE_NUMBER is not set");
+      throw new UndefinedEnvironmentVariableException("TWILIO_NUMBER is not set");
     } else {
       return phoneNumber;
     }
@@ -61,9 +61,9 @@ public class AppSetup {
   }
 
   public String getConferenceNumber() throws UndefinedEnvironmentVariableException {
-    String number = env.get("TWILIO_RR_PHONE_NUMBER");
+    String number = env.get("TWILIO_RR_NUMBER");
     if (number == null) {
-      throw new UndefinedEnvironmentVariableException("TWILIO_RR_PHONE_NUMBER is not set");
+      throw new UndefinedEnvironmentVariableException("TWILIO_RR_NUMBER is not set");
     } else {
       return number;
     }
