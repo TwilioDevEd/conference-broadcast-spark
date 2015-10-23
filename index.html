@@ -128,10 +128,10 @@ a new message, we&#39;ll call her phone and record her response.</p>
 <ul>
 <li><a href="//www.twilio.com/docs/quickstart/java/twiml/record-caller-leave-message">Recording: Java
 Quickstart</a></li>
-<li><a href="//www.twilio.com/docs/quickstart/ruby/rest/call-request">Make Outgoing Calls: Java
+<li><a href="//www.twilio.com/docs/quickstart/java/rest/call-request">Make Outgoing Calls: Java
 Quickstart</a></li>
 </ul>
-</div><div data-file="src/main/java/com/twilio/conferencebroadcast/controllers/RecordingController.java" data-highlight="78-95" class="step"><h2 id="fetch-recordings">Fetch Recordings</h2>
+</div><div data-file="src/main/java/com/twilio/conferencebroadcast/controllers/RecordingController.java" data-highlight="79-96" class="step"><h2 id="fetch-recordings">Fetch Recordings</h2>
 <p>This route fetches all of the
 <a href="https://www.twilio.com/docs/api/rest/recording#list-get-
 example-1"><code>recordings</code></a> associated with our Twilio account. We could filter these
@@ -150,7 +150,7 @@ Recordings</a></li>
 <li><a href="//www.twilio.com/docs/api/rest/recording#list-get-example-4">Twilio REST API: Filter Recordings
 Results</a></li>
 </ul>
-</div><div data-file="src/main/java/com/twilio/conferencebroadcast/controllers/BroadcastController.java" data-highlight="140-157" class="step"><h2 id="recording-a-new-message">Recording a new Message</h2>
+</div><div data-file="src/main/java/com/twilio/conferencebroadcast/controllers/BroadcastController.java" data-highlight="141-158" class="step"><h2 id="recording-a-new-message">Recording a new Message</h2>
 <p>If the organizer needs to make a new recording, we simply call her
 and record the call. Twilio makes this simple with the
 <a href="//www.twilio.com/docs/api/twiml/record"><code>Record</code></a> verb.</p>
@@ -163,7 +163,7 @@ so the call drops when the recording is finished.</p>
 <ul>
 <li><a href="//www.twilio.com/docs/api/twiml/record#attributes">Recording: Optional Attributes</a></li>
 </ul>
-</div><div data-file="src/main/java/com/twilio/conferencebroadcast/controllers/BroadcastController.java" data-highlight="87-118" class="step"><h2 id="broadcast-a-recorded-message">Broadcast a Recorded Message</h2>
+</div><div data-file="src/main/java/com/twilio/conferencebroadcast/controllers/BroadcastController.java" data-highlight="87-119" class="step"><h2 id="broadcast-a-recorded-message">Broadcast a Recorded Message</h2>
 <p>This controller processes our voice broadcast webform, starting with
 the phone numbers our organizer provided.</p>
 <p>Next we initiate a phone call to each number using Twilio&#39;s REST API.</p>
@@ -173,7 +173,7 @@ parameter to get further instructions. We include a
 <code>recording_url</code> parameter in that URL so that our <code>broadcast.play</code>
 controller will know which recording to use.</p>
 <p>That makes the work for our <code>broadcast/play</code> route simple — we just
-<a href="//www.twilio.com/docs/api/twiml/say"><code>Play</code></a> the recording.</p>
+<a href="//www.twilio.com/docs/api/twiml/play"><code>Play</code></a> the recording.</p>
 <hr>
 <p><strong>See Also:</strong></p>
 <ul>
