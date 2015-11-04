@@ -15,6 +15,16 @@ An example application implementing an disaster response kit that allows an orga
     $ cp .env.example .env
     ```
 
+   Once you have edited the `.env` file, if you are using a unix operating system,
+   just use the source command to load the variables into your environment:
+
+   ```bash
+   $ source .env
+   ```
+
+   If you are using a different operating system, make sure that all the
+   variables from the .env.example file are loaded into your environment.
+
    You can find your `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` under
    your
    [Twilio Account Settings](https://www.twilio.com/user/account/settings).
