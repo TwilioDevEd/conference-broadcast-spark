@@ -9,17 +9,13 @@ An example application implementing an disaster response kit that allows an orga
 1. The application uses Gradle to manage dependencies. A wrapper is included in the
    repository so, if you don't have Gradle installed on the system, you can use `./gradlew` to
    execute any gradle task.
-1. Copy the sample configuration file and edit it to match your configuration.
+1. Edit the sample configuration file `.env.example` and edit it to match your configuration.
 
-    ```bash
-    $ cp .env.example .env
-    ```
-
-   Once you have edited the `.env` file, if you are using a unix operating system,
-   just use the source command to load the variables into your environment:
+   Once you have edited the `.env.example` file, if you are using a unix operating system,
+   just use the `source` command to load the variables into your environment:
 
    ```bash
-   $ source .env
+   $ source .env.example
    ```
 
    If you are using a different operating system, make sure that all the
@@ -36,7 +32,7 @@ An example application implementing an disaster response kit that allows an orga
    You will also need to configure Twilio to call your application when calls are received.
 
    You will need to provision at least one Twilio number with voice capabilities
-   so the application's users can take surveys. You can buy a number [right
+   so the application's users can join conference calls. You can buy a number [right
    here](https://www.twilio.com/user/account/phone-numbers/search). Once you have
    a number you need to configure your number to work with your application. Open
    [the number management page](https://www.twilio.com/user/account/phone-numbers/incoming)
