@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -29,11 +30,11 @@ public class ConferenceControllerTest {
 
     SAXBuilder builder = new SAXBuilder();
     Document document = null;
-    List<Element> sayVerbs = null;
+    String sayVerb = null;
     String gatherVerbAction = null;
     try {
       document = builder.build(new StringReader(xml));
-      sayVerbs = document.getRootElement().getChild("Gather").getChildren();
+      sayVerb = document.getRootElement().getChild("Gather").getChild("Say").getText();
       gatherVerbAction = document.getRootElement().getChild("Gather").getAttributeValue("action");
     } catch (JDOMException e) {
       e.printStackTrace();
@@ -41,7 +42,12 @@ public class ConferenceControllerTest {
       e.printStackTrace();
     }
 
-    assertThat(sayVerbs.size(), is(3));
+    String message = "You are about to join the Rapid Response conference."
+        + "Press 1 to join as a listener."
+        + "Press 2 to join as a speaker."
+        + "Press 3 to join as the moderator.";
+
+    assertThat(sayVerb, containsString(message));
     assertThat(gatherVerbAction, is("/conference/connect"));
   }
 
