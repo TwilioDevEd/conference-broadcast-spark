@@ -1,34 +1,41 @@
 package com.twilio.conferencebroadcast.controllers;
 
-import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
-import com.twilio.conferencebroadcast.lib.AppSetup;
-import com.twilio.sdk.TwilioRestClient;
-import com.twilio.sdk.TwilioRestException;
-import com.twilio.sdk.resource.factory.CallFactory;
-import com.twilio.sdk.resource.instance.Account;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.*;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
+import com.twilio.conferencebroadcast.lib.AppSetup;
+import com.twilio.rest.api.v2010.account.Call;
+import com.twilio.rest.api.v2010.account.CallCreator;
+import com.twilio.type.PhoneNumber;
+
 import spark.Request;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Map;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
+@RunWith(PowerMockRunner.class)
 public class BroadCastControllerTest {
   @Test
   public void getXMLRecordResponseTest() {
     AppSetup mockAppSetup = mock(AppSetup.class);
-    TwilioRestClient mockClient = mock(TwilioRestClient.class);
-    BroadcastController controller = new BroadcastController(mockAppSetup, mockClient);
+
+    BroadcastController controller = new BroadcastController(mockAppSetup);
 
     String xml = controller.getXMLRecordResponse();
 
@@ -47,7 +54,8 @@ public class BroadCastControllerTest {
       e.printStackTrace();
     }
 
-    assertThat(sayElement.getText(), is("Please record your message after the beep. Press star to end your recording."));
+    assertThat(sayElement.getText(),
+        is("Please record your message after the beep. Press star to end your recording."));
     assertThat(recordElement.getAttributeValue("finishOnKey"), is("*"));
     assertThat(recordElement.getAttributeValue("action"), is("/broadcast/hangup"));
   }
@@ -55,8 +63,7 @@ public class BroadCastControllerTest {
   @Test
   public void getXMLHangupResponseTest() {
     AppSetup mockAppSetup = mock(AppSetup.class);
-    TwilioRestClient mockClient = mock(TwilioRestClient.class);
-    BroadcastController controller = new BroadcastController(mockAppSetup, mockClient);
+    BroadcastController controller = new BroadcastController(mockAppSetup);
 
     String xml = controller.getXMLHangupResponse();
 
@@ -80,38 +87,39 @@ public class BroadCastControllerTest {
   }
 
   @Test
-  public void broadcastSendTest() throws UndefinedEnvironmentVariableException,
-      TwilioRestException {
+  @PrepareForTest(Call.class)
+  public void broadcastSendTest() throws UndefinedEnvironmentVariableException {
     AppSetup mockAppSetup = mock(AppSetup.class);
-    TwilioRestClient mockClient = mock(TwilioRestClient.class);
-    Account mockAccount = mock(Account.class);
-    CallFactory mockCallFactory = mock(CallFactory.class);
     Request mockRequest = mock(Request.class);
+    CallCreator mockCallCreator = mock(CallCreator.class);
 
-    BroadcastController controller = new BroadcastController(mockAppSetup, mockClient);
+    mockStatic(Call.class);
 
-    when(mockClient.getAccount()).thenReturn(mockAccount);
-    when(mockAccount.getCallFactory()).thenReturn(mockCallFactory);
+    BroadcastController controller = new BroadcastController(mockAppSetup);
+
     when(mockAppSetup.getTwilioPhoneNumber()).thenReturn("+twilio_number");
     when(mockRequest.queryParams("numbers")).thenReturn("+12345,+67890");
     when(mockRequest.queryParams("recording_url")).thenReturn("Some_url");
     when(mockRequest.url()).thenReturn("some_url");
     when(mockRequest.uri()).thenReturn("some_uri");
+    when(Call.create(any(PhoneNumber.class), any(PhoneNumber.class), any(URI.class)))
+        .thenReturn(mockCallCreator);
+    when(mockAppSetup.getAccountSid()).thenReturn("accountSid");
+    when(mockAppSetup.getAuthToken()).thenReturn("authToken");
 
     controller.broadcastSend(mockRequest);
 
     verify(mockRequest).queryParams("numbers");
     verify(mockRequest).queryParams("recording_url");
-    verify(mockCallFactory, times(2)).create(any(Map.class));
+    verify(mockCallCreator, times(2)).execute();
   }
 
   @Test
   public void getXMLPlayResponse() {
     AppSetup mockAppSetup = mock(AppSetup.class);
-    TwilioRestClient mockClient = mock(TwilioRestClient.class);
     Request mockRequest = mock(Request.class);
 
-    BroadcastController controller = new BroadcastController(mockAppSetup, mockClient);
+    BroadcastController controller = new BroadcastController(mockAppSetup);
 
     when(mockRequest.queryParams("recording_url")).thenReturn("http://www.example.com/uri");
 

@@ -1,14 +1,15 @@
 package com.twilio.conferencebroadcast.controllers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.twilio.conferencebroadcast.lib.AppSetup;
-import com.twilio.sdk.verbs.*;
+import com.twilio.twiml.*;
+
 import spark.ModelAndView;
 import spark.Request;
 import spark.Route;
 import spark.TemplateViewRoute;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ConferenceController {
@@ -27,6 +28,11 @@ public class ConferenceController {
 
     return getXMLJoinResponse();
   };
+  public Route connect = (request, response) -> {
+    response.type("application/xml");
+
+    return getXMLConnectResponse(request);
+  };
 
   public TemplateViewRoute index = (request, response) -> {
     Map<String, String> map = new HashMap();
@@ -36,44 +42,36 @@ public class ConferenceController {
     return new ModelAndView(map, "conference.mustache");
   };
 
-  public Route connect = (request, response) -> {
-    response.type("application/xml");
-
-    return getXMLConnectResponse(request);
-  };
-
   /**
    * Generates the xml necessary to ask the user what role will be used to join the call
+   * 
    * @return XML response
    */
   public String getXMLJoinResponse() {
-    TwiMLResponse twimlResponse = new TwiMLResponse();
+    String message =
+        "You are about to join the Rapid Response conference." + "Press 1 to join as a listener."
+            + "Press 2 to join as a speaker." + "Press 3 to join as the moderator.";
 
-    String defaultMessage =
-        "You are about to join the Rapid Response conference.";
-    Say sayMessage = new Say(defaultMessage);
-    Say sayOption1 = new Say("Press 1 to join as a listener.");
-    Say sayOption2 = new Say("Press 2 to join as a speaker.");
-    Say sayOption3 = new Say("Press 3 to join as the moderator.");
-    Gather gather = new Gather();
-    gather.setAction("/conference/connect");
-    gather.setMethod("POST");
+    Say sayMessage = new Say.Builder(message).build();
+    Gather gather = new Gather.Builder()
+        .action("/conference/connect")
+        .method(Method.POST)
+        .say(sayMessage)
+        .build();
+
+    VoiceResponse voiceResponse = new VoiceResponse.Builder().gather(gather).build();
 
     try {
-      twimlResponse.append(sayMessage);
-      gather.append(sayOption1);
-      gather.append(sayOption2);
-      gather.append(sayOption3);
-      twimlResponse.append(gather);
+      return voiceResponse.toXml();
     } catch (TwiMLException e) {
       System.out.println("Twilio's response building error");
+      return "Twilio's response building error";
     }
-
-    return twimlResponse.toXML();
   }
 
   /**
    * Returns necessary xml to join the conference call
+   * 
    * @param request
    * @return XML string
    */
@@ -88,24 +86,25 @@ public class ConferenceController {
     if (digits.equals("3")) {
       moderator = true;
     }
-    TwiMLResponse twimlResponse = new TwiMLResponse();
 
     String defaultMessage = "You have joined the conference.";
-    Say sayMessage = new Say(defaultMessage);
+    Say sayMessage = new Say.Builder(defaultMessage).build();
 
-    Dial dial = new Dial();
-    Conference conference = new Conference("RapidResponseRoom");
-    conference.setWaitUrl("http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient");
-    conference.setMuted(muted);
-    conference.setStartConferenceOnEnter(moderator);
-    conference.setEndConferenceOnExit(moderator);
+    Conference conference = new Conference.Builder("RapidResponseRoom")
+        .waitUrl("http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient")
+        .muted(muted)
+        .startConferenceOnEnter(moderator)
+        .endConferenceOnExit(moderator)
+        .build();
+
+    Dial dial = new Dial.Builder().conference(conference).build();
+
+    VoiceResponse voiceResponse = new VoiceResponse.Builder().say(sayMessage).dial(dial).build();
     try {
-      dial.append(conference);
-      twimlResponse.append(sayMessage);
-      twimlResponse.append(dial);
+      return voiceResponse.toXml();
     } catch (TwiMLException e) {
       System.out.println("Twilio's response building error");
+      return "Twilio's response building error";
     }
-    return twimlResponse.toXML();
   }
 }

@@ -60,7 +60,7 @@
       * [Spark Routing guide](//sparkjava.com/documentation.html#routes)
 
   .step(data-file='src/main/java/com/twilio/conferencebroadcast/controllers/ConferenceController.java',
-    data-highlight='75-110')
+    data-highlight='78-109')
     :markdown
       ## Create a Simple Conference Call
 
@@ -87,7 +87,7 @@
       * [Conference waitUrl parameter](https://www.twilio.com/docs/api/twiml/conference#attributes-waitUrl)
 
   .step(data-file='src/main/java/com/twilio/conferencebroadcast/controllers/ConferenceController.java',
-    data-highlight='45-73')
+    data-highlight='50-70')
     :markdown
       ## Create a Moderated Conference
 
@@ -110,7 +110,7 @@
         Quickstart](https://www.twilio.com/docs/quickstart/java/twiml/say-response)
 
   .step(data-file='src/main/java/com/twilio/conferencebroadcast/controllers/ConferenceController.java',
-    data-highlight='75-110')
+    data-highlight='78-109')
     :markdown
       ## Connect to a Moderated Conference
 
@@ -118,13 +118,13 @@
       that took an absolute or relative URL as a value — in our case, the
       `conference/connect` route.
 
-      When the caller finishes entering digits Twilio makes a GET or POST
+      When the caller finishes entering digits Twilio makes a POST
       request to this URL including a
       [`Digits`](//www.twilio.com/docs/api/twiml/gather#attributes-
       action-parameters) parameter with the number our caller chose.
 
-      We use that parameter to set a couple variables, `@muted` and
-      `@moderator`, which we then use to configure our
+      We use that parameter to set a couple variables, `muted` and
+      `moderator`, which we then use to configure our
       [`Dial`](//www.twilio.com/docs/api/twiml/dial) and
       [`Conference`](//www.twilio.com/docs/api/twiml/conference) TwiML
       elements.
@@ -136,7 +136,7 @@
       * [Conference:
         `startConferenceOnEnter`](//www.twilio.com/docs/api/twiml/conference#attributes-startConferenceOnEnter)
 
-  .step(data-file='src/main/java/com/twilio/conferencebroadcast/controllers/RecordingController.java')
+  .step(data-file='src/main/java/com/twilio/conferencebroadcast/App.java', data-highlight='54-61')
     :markdown
       ## Voice Broadcast
 
@@ -160,9 +160,19 @@
         Quickstart](//www.twilio.com/docs/quickstart/java/twiml/record-caller-leave-message)
       * [Make Outgoing Calls: Java
         Quickstart](//www.twilio.com/docs/quickstart/java/rest/call-request)
-
+  
   .step(data-file='src/main/java/com/twilio/conferencebroadcast/controllers/RecordingController.java',
-    data-highlight='79-96')
+    data-highlight='44-56')
+    :markdown
+      ## Initialize the Client
+      
+      Before performing any request to the Twilio API using the helper library,
+      you must initialize the client using the static method `init()` with
+      your credentials on the Twilio class.
+      After this is done, you can make request to the API as much as you like!
+  
+  .step(data-file='src/main/java/com/twilio/conferencebroadcast/controllers/RecordingController.java',
+    data-highlight='92-107')
     :markdown
       ## Fetch Recordings
 
@@ -172,8 +182,8 @@
       results by date or call sid using Twilio's API, but for this example
       we just pull all recordings.
 
-      In order to use Twilio's handy API we need to first create our Twilio
-      client, which we can easily do by passing our credentials.
+      In order to use Twilio's handy API remember to first initialize our Twilio
+      client as the previous step demonstrates.
 
       Once we get all of the recordings we need to render a JSON response of
       our recordings object. This route will be called by our Javascript on
@@ -188,7 +198,7 @@
         Results](//www.twilio.com/docs/api/rest/recording#list-get-example-4)
 
   .step(data-file='src/main/java/com/twilio/conferencebroadcast/controllers/BroadcastController.java',
-    data-highlight='141-158')
+    data-highlight='133-153')
     :markdown
       ## Recording a new Message
 
@@ -207,7 +217,7 @@
       * [Recording: Optional Attributes](//www.twilio.com/docs/api/twiml/record#attributes)
 
   .step(data-file='src/main/java/com/twilio/conferencebroadcast/controllers/BroadcastController.java',
-    data-highlight='87-119')
+    data-highlight='87-112')
     :markdown
       ## Broadcast a Recorded Message
 
@@ -253,6 +263,6 @@
 
       ### Did this help?
 
-      Thanks for checking out this tutorial! If you have any feedback to share
-      with us, we'd love to hear it. Tweet
-      [@twilio](http://twitter.com/twilio) to let us know what you think.
+      Thanks for checking out this tutorial! If you have any feedback
+      to share with us, we'd love to hear it.
+      [Contact the Twilio Developer Education Team](mailto:deved-oss@twilio.com) to let us know what you think.
