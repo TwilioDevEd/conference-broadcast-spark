@@ -1,61 +1,67 @@
 package com.twilio.conferencebroadcast.controllers;
 
-import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
-import com.twilio.conferencebroadcast.lib.AppSetup;
-import com.twilio.sdk.TwilioRestClient;
-import com.twilio.sdk.TwilioRestException;
-import com.twilio.sdk.resource.factory.CallFactory;
-import com.twilio.sdk.resource.instance.Account;
-import com.twilio.sdk.resource.instance.Recording;
-import com.twilio.sdk.resource.list.RecordingList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.*;
+
+import java.net.URI;
+import java.util.Iterator;
+
+import com.twilio.rest.api.v2010.account.Call;
+import com.twilio.rest.api.v2010.account.CallCreator;
+import com.twilio.type.PhoneNumber;
+import org.joda.time.DateTime;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import com.twilio.base.ResourceSet;
+import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
+import com.twilio.conferencebroadcast.lib.AppSetup;
+import com.twilio.rest.api.v2010.account.Recording;
+import com.twilio.rest.api.v2010.account.RecordingReader;
+
 import spark.Request;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
+@RunWith(PowerMockRunner.class)
 public class RecordingControllerTest {
   @Test
-  public void getRecordingsAsJSONTest() {
+  @PrepareForTest(Recording.class)
+  public void getRecordingsAsJSONTest() throws UndefinedEnvironmentVariableException {
     AppSetup mockAppSetup = mock(AppSetup.class);
-    TwilioRestClient mockClient = mock(TwilioRestClient.class);
-    Account mockAccount = mock(Account.class);
-    RecordingList mockRecordingList = mock(RecordingList.class);
+
     Recording mockRecording1 = mock(Recording.class);
     Recording mockRecording2 = mock(Recording.class);
     Iterator recordingIterator = mock(Iterator.class);
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd HH:mm:ss");
-    String strDate = "2013-12-21 14:12:21";
-    Date newDate = null;
-    try {
-      newDate = dateFormat.parse(strDate);
-    } catch (java.text.ParseException e) {
-      System.out.println("Unable to parse date");
-    }
+    RecordingReader readerMock = mock(RecordingReader.class);
+    mockStatic(Recording.class);
 
-    when(mockClient.getAccount()).thenReturn(mockAccount);
-    when(mockAccount.getRecordings()).thenReturn(mockRecordingList);
+    ResourceSet<Recording> mockRecordingList = mock(ResourceSet.class);
+
+    DateTime newDate = DateTime.parse("2013-12-21T14:12:21");
+
+    when(Recording.read()).thenReturn(readerMock);
+    when(readerMock.execute()).thenReturn(mockRecordingList);
     when(mockRecordingList.iterator()).thenReturn(recordingIterator);
     when(recordingIterator.hasNext()).thenReturn(true, true, false);
     when(recordingIterator.next()).thenReturn(mockRecording1).thenReturn(mockRecording2);
-    when(mockRecording1.getProperty("uri")).thenReturn("/some/uri");
+    when(mockRecording1.getUri()).thenReturn("/some/uri");
     when(mockRecording1.getDateCreated()).thenReturn(newDate);
-    when(mockRecording2.getProperty("uri")).thenReturn("/some/uri");
+    when(mockRecording2.getUri()).thenReturn("/some/uri");
     when(mockRecording2.getDateCreated()).thenReturn(newDate);
+    when(Recording.read()).thenReturn(readerMock);
+    when(mockAppSetup.getAccountSid()).thenReturn("accountSid");
+    when(mockAppSetup.getAuthToken()).thenReturn("authToken");
 
-    RecordingController controller = new RecordingController(mockAppSetup, mockClient);
+    RecordingController controller = new RecordingController(mockAppSetup);
     String json = controller.getRecordingsAsJSON();
     JSONArray obj = null;
 
@@ -69,31 +75,34 @@ public class RecordingControllerTest {
 
     assertThat(obj.size(), is(2));
     assertThat(firstElement.get("url"), is("https://api.twilio.com/some/uri"));
-    assertThat(firstElement.get("date"), is(dateFormat.format(newDate)));
+    assertThat(firstElement.get("date"), is(newDate.toString("yyyy-M-dd HH:mm:ss")));
   }
 
   @Test
-  public void createRecordingTest()
-      throws TwilioRestException, UndefinedEnvironmentVariableException {
+  @PrepareForTest(Call.class)
+  public void createRecordingTest() throws UndefinedEnvironmentVariableException {
     AppSetup mockAppSetup = mock(AppSetup.class);
-    TwilioRestClient mockClient = mock(TwilioRestClient.class);
-    Account mockAccount = mock(Account.class);
-    CallFactory mockCallFactory = mock(CallFactory.class);
     Request mockRequest = mock(Request.class);
+    CallCreator mockCallCreator = mock(CallCreator.class);
+    Call mockCall = mock(Call.class);
 
-    RecordingController controller = new RecordingController(mockAppSetup, mockClient);
+    RecordingController controller = new RecordingController(mockAppSetup);
 
-    when(mockClient.getAccount()).thenReturn(mockAccount);
-    when(mockAccount.getCallFactory()).thenReturn(mockCallFactory);
+    mockStatic(Call.class);
+
+    when(Call.create(any(PhoneNumber.class), any(PhoneNumber.class), any(URI.class))).thenReturn(mockCallCreator);
+    when(mockCallCreator.execute()).thenReturn(mockCall);
     when(mockRequest.queryParams("phone_number")).thenReturn("+number");
     when(mockRequest.url()).thenReturn("some_url");
     when(mockRequest.uri()).thenReturn("some_uri");
     when(mockAppSetup.getTwilioPhoneNumber()).thenReturn("+twilio_number");
+    when(mockAppSetup.getAccountSid()).thenReturn("accountSid");
+    when(mockAppSetup.getAuthToken()).thenReturn("authToken");
 
     int status = controller.createRecording(mockRequest);
 
     verify(mockRequest).queryParams("phone_number");
-    verify(mockCallFactory).create(any(Map.class));
+    verify(mockCallCreator).execute();
 
     assertThat(status, is(200));
   }

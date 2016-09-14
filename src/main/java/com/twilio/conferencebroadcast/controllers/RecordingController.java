@@ -1,37 +1,32 @@
 package com.twilio.conferencebroadcast.controllers;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import com.twilio.Twilio;
+import com.twilio.base.ResourceSet;
 import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
 import com.twilio.conferencebroadcast.lib.AppSetup;
 import com.twilio.conferencebroadcast.lib.RecordingUriTransformer;
-import com.twilio.sdk.TwilioRestClient;
-import com.twilio.sdk.TwilioRestException;
-import com.twilio.sdk.resource.instance.Recording;
-import com.twilio.sdk.resource.list.RecordingList;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.twilio.rest.api.v2010.account.Call;
+import com.twilio.rest.api.v2010.account.Recording;
+import com.twilio.type.PhoneNumber;
+
 import spark.Request;
 import spark.Route;
 
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
-
 public class RecordingController {
   AppSetup appSetup;
-  TwilioRestClient client;
+
+  public RecordingController(AppSetup appSetup) {
+    this.appSetup = appSetup;
+  }
 
   public RecordingController() {
     this.appSetup = new AppSetup();
-    try {
-      this.client = new TwilioRestClient(appSetup.getAccountSid(), appSetup.getAuthToken());
-    } catch (UndefinedEnvironmentVariableException e) {
-      System.out.println(e.getMessage());
-    }
-  }
-
-  public RecordingController(AppSetup appSetup, TwilioRestClient client) {
-    this.appSetup = appSetup;
-    this.client = client;
   }
 
   public Route index = (request, response) -> {
@@ -46,13 +41,29 @@ public class RecordingController {
     return "";
   };
 
+  private void initializeTwilioClient() {
+    String accountSid = null;
+    String authToken = null;
+
+    try {
+      accountSid = appSetup.getAccountSid();
+      authToken = appSetup.getAuthToken();
+    } catch (UndefinedEnvironmentVariableException e) {
+      System.out.println(e.getLocalizedMessage());
+    }
+
+    Twilio.init(accountSid, authToken);
+  }
+
   /**
    * Function that creates a recording remotely using Twilio's rest client
+   * 
    * @param request Request holds the phone_number parameter
    * @return Returns the status of the request
    */
   public int createRecording(Request request) {
-    Map<String, String> params = new HashMap<>();
+    initializeTwilioClient();
+
     String phoneNumber = request.queryParams("phone_number");
     String twilioNumber = null;
     try {
@@ -62,33 +73,33 @@ public class RecordingController {
     }
     String path = request.url().replace(request.uri(), "") + "/broadcast/record";
 
-    params.put("From", twilioNumber);
-    params.put("To", phoneNumber);
-    params.put("Url", path);
-
+    Call call;
     try {
-      client.getAccount().getCallFactory().create(params);
-    } catch (TwilioRestException e) {
-      System.out.println("Twilio rest client error " + e.getErrorMessage());
-      System.out.println("Remember not to use localhost to access this app, use your ngrok URL");
-      return e.getErrorCode();
+      call = Call.create(new PhoneNumber(phoneNumber), new PhoneNumber(twilioNumber), new URI(path))
+          .execute();
+    } catch (URISyntaxException e) {
+      System.out.println("Invalid URL used in call creator");
     }
+
     return 200;
   }
 
   /**
    * Creates a JSON string that contains the url and date of all the user's recordings
+   * 
    * @return Returns a JSON string
    */
   public String getRecordingsAsJSON() {
-    RecordingList recordings = client.getAccount().getRecordings();
+    initializeTwilioClient();
+
+    ResourceSet<Recording> recordings = Recording.read().execute();
+
     JSONArray jsonRecordings = new JSONArray();
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd HH:mm:ss");
 
     for (Recording recording : recordings) {
       JSONObject obj = new JSONObject();
-      obj.put("url", RecordingUriTransformer.transform(recording.getProperty("uri")));
-      obj.put("date", dateFormat.format(recording.getDateCreated()));
+      obj.put("url", RecordingUriTransformer.transform(recording.getUri()));
+      obj.put("date", recording.getDateCreated().toString("yyyy-M-dd HH:mm:ss"));
       jsonRecordings.add(obj);
     }
 
