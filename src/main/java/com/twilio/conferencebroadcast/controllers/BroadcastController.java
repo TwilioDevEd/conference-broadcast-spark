@@ -1,35 +1,32 @@
 package com.twilio.conferencebroadcast.controllers;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.twilio.Twilio;
 import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
 import com.twilio.conferencebroadcast.lib.AppSetup;
-import com.twilio.sdk.TwilioRestClient;
-import com.twilio.sdk.TwilioRestException;
-import com.twilio.sdk.resource.factory.CallFactory;
-import com.twilio.sdk.verbs.*;
+import com.twilio.exception.TwilioException;
+import com.twilio.rest.api.v2010.account.Call;
+import com.twilio.twiml.*;
+import com.twilio.type.PhoneNumber;
+
 import spark.ModelAndView;
 import spark.Request;
 import spark.Route;
 import spark.TemplateViewRoute;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class BroadcastController {
   AppSetup appSetup;
-  TwilioRestClient client;
 
   public BroadcastController() {
     this.appSetup = new AppSetup();
-    try {
-      this.client = new TwilioRestClient(appSetup.getAccountSid(), appSetup.getAuthToken());
-    } catch (UndefinedEnvironmentVariableException e) {
-      System.out.println("Required environment variable undefined");
-    }
   }
 
-  public BroadcastController(AppSetup appSetup, TwilioRestClient client) {
+  public BroadcastController(AppSetup appSetup) {
     this.appSetup = appSetup;
-    this.client = client;
   }
 
   public TemplateViewRoute index = (request, response) -> {
@@ -37,17 +34,18 @@ public class BroadcastController {
 
     return new ModelAndView(map, "broadcast.mustache");
   };
-
   public Route record = (request, response) -> {
     response.type("application/xml");
 
     return getXMLRecordResponse();
   };
-
   public Route hangup = (request, response) -> {
     response.type("application/xml");
 
     return getXMLHangupResponse();
+  };
+  public Route play = (request, response) -> {
+    return getXMLPlayResponse(request);
   };
 
   public TemplateViewRoute send = (request, response) -> {
@@ -60,40 +58,40 @@ public class BroadcastController {
     return new ModelAndView(map, "broadcast.mustache");
   };
 
-  public Route play = (request, response) -> {
-    return getXMLPlayResponse(request);
-  };
-
   /**
    * Returns the xml response that will play the recorded message for the given URL
+   * 
    * @param request
    * @return xml response
    */
   public String getXMLPlayResponse(Request request) {
-    TwiMLResponse twiMLResponse = new TwiMLResponse();
     String recordingUrl = request.queryParams("recording_url");
 
-    Play play = new Play(recordingUrl);
+    Play play = new Play.Builder(recordingUrl).build();
+
+    VoiceResponse voiceResponse = new VoiceResponse.Builder().play(play).build();
 
     try {
-      twiMLResponse.append(play);
+      return voiceResponse.toXml();
     } catch (TwiMLException e) {
-      System.out.println("Unable to create twiml response");
+      return "Unable tu create valid TwiML";
     }
-
-    return twiMLResponse.toEscapedXML();
   }
 
   /**
-   * Method that will create the remote calls using Twilio's rest client for every number
-   * especified in the CSV.
+   * Method that will create the remote calls using Twilio's rest client for every number especified
+   * in the CSV.
+   * 
    * @param request
    */
   public void broadcastSend(Request request) {
+    initializeTwilioClient();
+
     String numbers = request.queryParams("numbers");
     String recordingUrl = request.queryParams("recording_url");
     String[] parsedNumbers = numbers.split(",");
-    String url = request.url().replace(request.uri(), "") + "/broadcast/play?recording_url=" + recordingUrl;
+    String url =
+        request.url().replace(request.uri(), "") + "/broadcast/play?recording_url=" + recordingUrl;
     String twilioNumber = null;
     try {
       twilioNumber = appSetup.getTwilioPhoneNumber();
@@ -101,59 +99,70 @@ public class BroadcastController {
       e.printStackTrace();
     }
 
-    CallFactory callFactory = client.getAccount().getCallFactory();
-
     for (String number : parsedNumbers) {
-      Map<String, String> params = new HashMap<>();
-      params.put("From", twilioNumber);
-      params.put("To", number);
-      params.put("Url", url);
-
       try {
-        callFactory.create(params);
-      } catch (TwilioRestException e) {
-        System.out.println("Twilio rest client error " + e.getErrorMessage());
+        Call.create(new PhoneNumber(number), new PhoneNumber(twilioNumber), new URI(url)).execute();
+      } catch (TwilioException e) {
+        System.out.println("Twilio rest client error " + e.getLocalizedMessage());
         System.out.println("Remember not to use localhost to access this app, use your ngrok URL");
+      } catch (URISyntaxException e) {
+        System.out.println(e.getLocalizedMessage());
       }
     }
   }
 
   /**
    * This XML response is necessary to end the call when a new recording is made
+   * 
    * @return
    */
   public String getXMLHangupResponse() {
-    TwiMLResponse twiMLResponse = new TwiMLResponse();
-
-    Say say = new Say("Your recording has been saved. Good bye.");
+    Say say = new Say.Builder("Your recording has been saved. Good bye.").build();
     Hangup hangup = new Hangup();
 
+    VoiceResponse voiceResponse = new VoiceResponse.Builder().say(say).hangup(hangup).build();
+
     try {
-      twiMLResponse.append(say);
-      twiMLResponse.append(hangup);
+      return voiceResponse.toXml();
     } catch (TwiMLException e) {
       System.out.println("Unable to create twiml response");
+      return "Unable to create twiml response";
     }
-
-    return twiMLResponse.toXML();
   }
 
   public String getXMLRecordResponse() {
-    TwiMLResponse twiMLResponse = new TwiMLResponse();
+    Say say = new Say.Builder(
+        "Please record your message after the beep. Press star to end your recording.").build();
+    Record record = new Record.Builder()
+        .action("/broadcast/hangup")
+        .method(Method.POST)
+        .finishOnKey("*")
+        .build();
 
-    Say say = new Say("Please record your message after the beep. Press star to end your recording.");
-    Record record = new Record();
-    record.setAction("/broadcast/hangup");
-    record.setMethod("POST");
-    record.setFinishOnKey("*");
+    VoiceResponse voiceResponse = new VoiceResponse.Builder()
+        .say(say)
+        .record(record)
+        .build();
 
     try {
-      twiMLResponse.append(say);
-      twiMLResponse.append(record);
+      return voiceResponse.toXml();
     } catch (TwiMLException e) {
       System.out.println("Unable to create Twiml Response");
+      return "Unable to create Twiml Response";
+    }
+  }
+
+  private void initializeTwilioClient() {
+    String accountSid = null;
+    String authToken = null;
+
+    try {
+      accountSid = appSetup.getAccountSid();
+      authToken = appSetup.getAuthToken();
+    } catch (UndefinedEnvironmentVariableException e) {
+      System.out.println(e.getLocalizedMessage());
     }
 
-    return twiMLResponse.toXML();
+    Twilio.init(accountSid, authToken);
   }
 }
