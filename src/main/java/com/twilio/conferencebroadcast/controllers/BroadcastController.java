@@ -1,22 +1,27 @@
 package com.twilio.conferencebroadcast.controllers;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.twilio.Twilio;
 import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
 import com.twilio.conferencebroadcast.lib.AppSetup;
 import com.twilio.exception.TwilioException;
 import com.twilio.rest.api.v2010.account.Call;
-import com.twilio.twiml.*;
+import com.twilio.twiml.Hangup;
+import com.twilio.twiml.Method;
+import com.twilio.twiml.Play;
+import com.twilio.twiml.Record;
+import com.twilio.twiml.Say;
+import com.twilio.twiml.TwiMLException;
+import com.twilio.twiml.VoiceResponse;
 import com.twilio.type.PhoneNumber;
-
 import spark.ModelAndView;
 import spark.Request;
 import spark.Route;
 import spark.TemplateViewRoute;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BroadcastController {
   AppSetup appSetup;
@@ -101,7 +106,7 @@ public class BroadcastController {
 
     for (String number : parsedNumbers) {
       try {
-        Call.create(new PhoneNumber(number), new PhoneNumber(twilioNumber), new URI(url)).execute();
+        Call.creator(new PhoneNumber(number), new PhoneNumber(twilioNumber), new URI(url)).create();
       } catch (TwilioException e) {
         System.out.println("Twilio rest client error " + e.getLocalizedMessage());
         System.out.println("Remember not to use localhost to access this app, use your ngrok URL");

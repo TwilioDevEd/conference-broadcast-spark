@@ -1,16 +1,12 @@
 package com.twilio.conferencebroadcast.controllers;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.*;
-
-import java.net.URI;
-import java.util.Iterator;
-
+import com.twilio.base.ResourceSet;
+import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
+import com.twilio.conferencebroadcast.lib.AppSetup;
 import com.twilio.rest.api.v2010.account.Call;
 import com.twilio.rest.api.v2010.account.CallCreator;
+import com.twilio.rest.api.v2010.account.Recording;
+import com.twilio.rest.api.v2010.account.RecordingReader;
 import com.twilio.type.PhoneNumber;
 import org.joda.time.DateTime;
 import org.json.simple.JSONArray;
@@ -21,14 +17,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.twilio.base.ResourceSet;
-import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
-import com.twilio.conferencebroadcast.lib.AppSetup;
-import com.twilio.rest.api.v2010.account.Recording;
-import com.twilio.rest.api.v2010.account.RecordingReader;
-
 import spark.Request;
+
+import java.net.URI;
+import java.util.Iterator;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 public class RecordingControllerTest {
@@ -48,8 +48,8 @@ public class RecordingControllerTest {
 
     DateTime newDate = DateTime.parse("2013-12-21T14:12:21");
 
-    when(Recording.read()).thenReturn(readerMock);
-    when(readerMock.execute()).thenReturn(mockRecordingList);
+    when(Recording.reader()).thenReturn(readerMock);
+    when(readerMock.read()).thenReturn(mockRecordingList);
     when(mockRecordingList.iterator()).thenReturn(recordingIterator);
     when(recordingIterator.hasNext()).thenReturn(true, true, false);
     when(recordingIterator.next()).thenReturn(mockRecording1).thenReturn(mockRecording2);
@@ -57,7 +57,7 @@ public class RecordingControllerTest {
     when(mockRecording1.getDateCreated()).thenReturn(newDate);
     when(mockRecording2.getUri()).thenReturn("/some/uri");
     when(mockRecording2.getDateCreated()).thenReturn(newDate);
-    when(Recording.read()).thenReturn(readerMock);
+    when(Recording.reader()).thenReturn(readerMock);
     when(mockAppSetup.getAccountSid()).thenReturn("accountSid");
     when(mockAppSetup.getAuthToken()).thenReturn("authToken");
 
@@ -90,8 +90,8 @@ public class RecordingControllerTest {
 
     mockStatic(Call.class);
 
-    when(Call.create(any(PhoneNumber.class), any(PhoneNumber.class), any(URI.class))).thenReturn(mockCallCreator);
-    when(mockCallCreator.execute()).thenReturn(mockCall);
+    when(Call.creator(any(PhoneNumber.class), any(PhoneNumber.class), any(URI.class))).thenReturn(mockCallCreator);
+    when(mockCallCreator.create()).thenReturn(mockCall);
     when(mockRequest.queryParams("phone_number")).thenReturn("+number");
     when(mockRequest.url()).thenReturn("some_url");
     when(mockRequest.uri()).thenReturn("some_uri");
@@ -102,7 +102,7 @@ public class RecordingControllerTest {
     int status = controller.createRecording(mockRequest);
 
     verify(mockRequest).queryParams("phone_number");
-    verify(mockCallCreator).execute();
+    verify(mockCallCreator).create();
 
     assertThat(status, is(200));
   }

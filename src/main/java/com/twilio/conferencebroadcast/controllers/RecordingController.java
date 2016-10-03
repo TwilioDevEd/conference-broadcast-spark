@@ -1,11 +1,5 @@
 package com.twilio.conferencebroadcast.controllers;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
 import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
@@ -14,9 +8,13 @@ import com.twilio.conferencebroadcast.lib.RecordingUriTransformer;
 import com.twilio.rest.api.v2010.account.Call;
 import com.twilio.rest.api.v2010.account.Recording;
 import com.twilio.type.PhoneNumber;
-
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import spark.Request;
 import spark.Route;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class RecordingController {
   AppSetup appSetup;
@@ -75,8 +73,8 @@ public class RecordingController {
 
     Call call;
     try {
-      call = Call.create(new PhoneNumber(phoneNumber), new PhoneNumber(twilioNumber), new URI(path))
-          .execute();
+      call = Call.creator(new PhoneNumber(phoneNumber), new PhoneNumber(twilioNumber), new URI(path))
+          .create();
     } catch (URISyntaxException e) {
       System.out.println("Invalid URL used in call creator");
     }
@@ -92,7 +90,7 @@ public class RecordingController {
   public String getRecordingsAsJSON() {
     initializeTwilioClient();
 
-    ResourceSet<Recording> recordings = Recording.read().execute();
+    ResourceSet<Recording> recordings = Recording.reader().read();
 
     JSONArray jsonRecordings = new JSONArray();
 

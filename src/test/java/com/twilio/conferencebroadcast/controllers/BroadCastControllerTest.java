@@ -1,17 +1,10 @@
 package com.twilio.conferencebroadcast.controllers;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.*;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-
+import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
+import com.twilio.conferencebroadcast.lib.AppSetup;
+import com.twilio.rest.api.v2010.account.Call;
+import com.twilio.rest.api.v2010.account.CallCreator;
+import com.twilio.type.PhoneNumber;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -20,14 +13,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
-import com.twilio.conferencebroadcast.lib.AppSetup;
-import com.twilio.rest.api.v2010.account.Call;
-import com.twilio.rest.api.v2010.account.CallCreator;
-import com.twilio.type.PhoneNumber;
-
 import spark.Request;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 public class BroadCastControllerTest {
@@ -102,7 +102,7 @@ public class BroadCastControllerTest {
     when(mockRequest.queryParams("recording_url")).thenReturn("Some_url");
     when(mockRequest.url()).thenReturn("some_url");
     when(mockRequest.uri()).thenReturn("some_uri");
-    when(Call.create(any(PhoneNumber.class), any(PhoneNumber.class), any(URI.class)))
+    when(Call.creator(any(PhoneNumber.class), any(PhoneNumber.class), any(URI.class)))
         .thenReturn(mockCallCreator);
     when(mockAppSetup.getAccountSid()).thenReturn("accountSid");
     when(mockAppSetup.getAuthToken()).thenReturn("authToken");
@@ -111,7 +111,7 @@ public class BroadCastControllerTest {
 
     verify(mockRequest).queryParams("numbers");
     verify(mockRequest).queryParams("recording_url");
-    verify(mockCallCreator, times(2)).execute();
+    verify(mockCallCreator, times(2)).create();
   }
 
   @Test
