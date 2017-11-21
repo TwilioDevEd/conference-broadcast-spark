@@ -4,8 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.twilio.conferencebroadcast.lib.AppSetup;
-import com.twilio.twiml.*;
 
+import com.twilio.http.HttpMethod;
+import com.twilio.twiml.TwiMLException;
+import com.twilio.twiml.VoiceResponse;
+import com.twilio.twiml.voice.Conference;
+import com.twilio.twiml.voice.Dial;
+import com.twilio.twiml.voice.Gather;
+import com.twilio.twiml.voice.Say;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Route;
@@ -55,7 +61,7 @@ public class ConferenceController {
     Say sayMessage = new Say.Builder(message).build();
     Gather gather = new Gather.Builder()
         .action("/conference/connect")
-        .method(Method.POST)
+        .method(HttpMethod.POST)
         .say(sayMessage)
         .build();
 

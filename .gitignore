@@ -2,5 +2,6 @@
 .idea/
 .gradle/
 build/
+classes/
 conference-broadcast-spark.iml
 .env
