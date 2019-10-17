@@ -13,7 +13,7 @@ dependencies {
     compile 'com.sparkjava:spark-template-mustache:2.3'
     compile 'com.googlecode.json-simple:json-simple:1.1.1'
     testCompile 'junit:junit:4.12'
-    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.4'
     testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.6.5'
     testCompile 'org.jdom:jdom:2.0.2'
 
