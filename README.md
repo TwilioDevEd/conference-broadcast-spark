@@ -78,3 +78,11 @@ This application uses this Twilio helper library:
    ```bash
    $ ./gradlew check
    ```
+   
+   
+## Meta
+
+* No warranty expressed or implied. Software is as is. Diggity.
+* [MIT License](http://www.opensource.org/licenses/mit-license.html)
+* Lovingly crafted by Twilio Developer Education.
+
