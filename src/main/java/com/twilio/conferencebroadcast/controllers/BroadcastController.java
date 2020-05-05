@@ -4,14 +4,14 @@ import com.twilio.Twilio;
 import com.twilio.conferencebroadcast.exceptions.UndefinedEnvironmentVariableException;
 import com.twilio.conferencebroadcast.lib.AppSetup;
 import com.twilio.exception.TwilioException;
+import com.twilio.http.HttpMethod;
 import com.twilio.rest.api.v2010.account.Call;
-import com.twilio.twiml.Hangup;
-import com.twilio.twiml.Method;
-import com.twilio.twiml.Play;
-import com.twilio.twiml.Record;
-import com.twilio.twiml.Say;
 import com.twilio.twiml.TwiMLException;
 import com.twilio.twiml.VoiceResponse;
+import com.twilio.twiml.voice.Hangup;
+import com.twilio.twiml.voice.Play;
+import com.twilio.twiml.voice.Record;
+import com.twilio.twiml.voice.Say;
 import com.twilio.type.PhoneNumber;
 import spark.ModelAndView;
 import spark.Request;
@@ -123,7 +123,7 @@ public class BroadcastController {
    */
   public String getXMLHangupResponse() {
     Say say = new Say.Builder("Your recording has been saved. Good bye.").build();
-    Hangup hangup = new Hangup();
+    Hangup hangup = new Hangup.Builder().build();
 
     VoiceResponse voiceResponse = new VoiceResponse.Builder().say(say).hangup(hangup).build();
 
@@ -140,7 +140,7 @@ public class BroadcastController {
         "Please record your message after the beep. Press star to end your recording.").build();
     Record record = new Record.Builder()
         .action("/broadcast/hangup")
-        .method(Method.POST)
+        .method(HttpMethod.POST)
         .finishOnKey("*")
         .build();
 
