@@ -4,21 +4,19 @@ apply plugin: 'application'
 mainClassName = "com.twilio.conferencebroadcast.App"
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    compile 'com.sparkjava:spark-core:2.5'
-    compile 'com.twilio.sdk:twilio:7.0.0-rc-29'
-    compile 'com.sparkjava:spark-template-mustache:2.3'
-    compile 'com.googlecode.json-simple:json-simple:1.1.1'
-    testCompile 'junit:junit:4.12'
-    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'
-    testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.6.5'
-    testCompile 'org.jdom:jdom:2.0.2'
+    implementation 'com.sparkjava:spark-core:2.9.1'
+    implementation 'com.twilio.sdk:twilio:7.49.1'
+    implementation 'com.sparkjava:spark-template-mustache:2.7.1'
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    testImplementation group: 'junit', name: 'junit', version: '4.13'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
+    testImplementation group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.7'
+    testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.7'
+    testImplementation group: 'org.jdom', name: 'jdom', version: '2.0.2'
 
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.6'
 }

@@ -4,3 +4,7 @@
 build/
 conference-broadcast-spark.iml
 .env
+.settings
+.project
+.vscode
+bin
