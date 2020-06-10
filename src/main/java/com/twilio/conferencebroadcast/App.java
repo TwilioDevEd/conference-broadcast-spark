@@ -19,7 +19,7 @@ public class App {
 
     /**
      * Sets the port in which the application will run. Takes the port value from PORT
-     * environment variable, if not set, uses Spark default port 4567.
+     * environment variable, if not set, uses default port 8080.
      */
     port(appSetup.getPortNumber());
 

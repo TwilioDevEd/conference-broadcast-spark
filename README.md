@@ -79,9 +79,18 @@ After the above requirements have been met:
     ```
     **NOTE:** If you are using a dedicated Java IDE like Eclipse or IntelliJ, you can start the application within the IDE and it will start in development mode, which means any changes on a source file will be automatically reloaded.
 
-7. Navigate to [http://localhost:8080](http://localhost:8080)
+4. Navigate to [http://localhost:8080](http://localhost:8080)
 
 That's it!
+
+### Docker
+
+If you have [Docker](https://www.docker.com/) already installed on your machine, you can use our `docker-compose.yml` to setup your project.
+
+1. Make sure you have the project cloned.
+2. Setup the environmental variables in the `docker-compose.yml` file, see the [Twilio Account Settings](#twilio-account-settings).
+3. Run `docker-compose --env-file /dev/null up`.
+4. Follow the steps in [Configure Twilio](#configure-twilio) section on how to expose your port to Twilio using a tool like [ngrok](https://ngrok.com/) and configure the remaining parts of your application.
 
 ### Configure Twilio
 
@@ -94,7 +103,7 @@ Remember that the number where you change the voice webhooks must be the same on
 Expose the application to the wider Internet. [We recommend using ngrok to solve this problem](https://www.twilio.com/blog/2015/09/6-awesome-reasons-to-use-ngrok-when-testing-webhooks.html).
 
 ```bash
-ngrok http 4567 -host-header="localhost:4567"
+ngrok http 8080 -host-header="localhost:8080"
 ```
 
 Once you have started ngrok, update your Twilio's number voice URL setting to use your ngrok hostname, so it will look something like this:

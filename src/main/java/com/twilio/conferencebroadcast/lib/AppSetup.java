@@ -20,7 +20,7 @@ public class AppSetup {
     if (port != null) {
       return Integer.parseInt(port);
     } else {
-      return 4567;
+      return 8080;
     }
   }
 
@@ -43,9 +43,9 @@ public class AppSetup {
   }
 
   public String getTwilioPhoneNumber() throws UndefinedEnvironmentVariableException {
-    String phoneNumber = env.get("TWILIO_NUMBER");
+    String phoneNumber = env.get("TWILIO_PHONE_NUMBER");
     if (phoneNumber == null) {
-      throw new UndefinedEnvironmentVariableException("TWILIO_NUMBER is not set");
+      throw new UndefinedEnvironmentVariableException("TWILIO_PHONE_NUMBER is not set");
     } else {
       return phoneNumber;
     }
