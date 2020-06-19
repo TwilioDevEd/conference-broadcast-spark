@@ -8,3 +8,4 @@ conference-broadcast-spark.iml
 .project
 .vscode
 bin
+.classpath
